@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenAI API Demo</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <header>
+                    <h1>SQL CODE OPTIMIZER</h1>
+                </header>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="queryInput">Enter SQL Query:</label>
+                    <textarea class="form-control" id="queryInput" rows="20"></textarea>
+                </div>
+                <h3></h3>
+                <button class="btn btn-primary btn-lg" onclick="optimizeQuery()">
+                    Optimize <span><i class="fa fa-filter"></i></span></button>
+                <button class="btn btn-secondary btn-lg ms-2" onclick="resetForm()">
+                    Reset <span><i class="fa fa-undo"></i></span></button>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="queryInput">Optimised SQL Query:</label>
+                    <textarea class="form-control" id="outputBox" rows="20" readonly></textarea>
+                </div>
+                <div>
+                    <h2></h2>
+                </div>
+                <button class="btn btn-success btn-lg" onclick="copyOutput()">
+                    Copy <span><i class="fa fa-copy"></i></span></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function optimizeQuery() {
+            var input = document.getElementById('queryInput').value;
+            var prompt = "optimise the sql query. reduce as many as tables possible ```" + input + "```";
+            
+            axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'system', content: 'You are a user' }, { role: 'user', content: prompt }],
+                temperature: 0
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer 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'
+                }
+            })
+            .then(function(response) {
+                var output = response.data.choices[0].message.content;
+                document.getElementById('outputBox').value = output;
+            })
+            .catch(function(error) {
+                console.error(error);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('queryInput').value = '';
+            document.getElementById('outputBox').value = '';
+        }
+
+        function copyOutput() {
+            var output = document.getElementById('outputBox');
+            output.select();
+            output.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
